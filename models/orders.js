@@ -1,28 +1,32 @@
-import bcrypt from "bcrypt";
-
 module.exports = (sequelize, DataType) => {
-  const Users = sequelize.define("Users", {
+  const Orders = sequelize.define("Orders", {
     id: {
       type: DataType.INTEGER,
       primaryKey: true,
       autoIncrement: true
     },
-    name: {
+    street: {
       type: DataType.STRING,
       allowNull: false,
       validate: {
         notEmpty: true
       }
     },
-    email: {
+    city: {
       type: DataType.STRING,
-      unique: true,
       allowNull: false,
       validate: {
         notEmpty: true
       }
     },
-    password: {
+    state: {
+      type: DataType.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: true
+      }
+    },
+    zipCode: {
       type: DataType.STRING,
       allowNull: false,
       validate: {
@@ -30,20 +34,15 @@ module.exports = (sequelize, DataType) => {
       }
     }
   }, {
-    hooks: {
-      beforeCreate: user => {
-        const salt = bcrypt.genSaltSync();
-        user.password = bcrypt.hashSync(user.password, salt);
-      }
-    },
     classMethods: {
       associate: models => {
-          Users.hasMany(models.Orders, { foreignKey: "idUser" });
-      },
-      isPassword: (encodedPassword, password) => {
-        return bcrypt.compareSync(password, encodedPassword);
+        Orders.hasMany(models.OrderItems, { foreignKey: "idOrder" });
+        Orders.belongsTo(models.Users, { foreignKey: "idUser" })
+        Orders.belongsTo(models.Buyers, { foreignKey: "idBuyer" })
+        Orders.belongsTo(models.Markets, { foreignKey: "idMarket" })
       }
     }
   });
-  return Users;
+
+  return Orders;
 };
